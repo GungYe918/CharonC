@@ -4,4 +4,5 @@ sysroot/
 # .vscode 폴더 숨기기
 .vscode/
 
-
+# mk.old 숨기기
+mk.old
