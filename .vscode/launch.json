@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [
+        "-I",
+        "/home/gungye/charonos/sysroot/usr",
+        "/home/gungye/charonos/sysroot/usr/include",
+        "/home/gungye/workspace/CharonC/kernel/Libraries"
+      ],
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "cwd": "/home/gungye/workspace/CharonC/kernel",
+      "program": "/home/gungye/workspace/CharonC/kernel/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}
