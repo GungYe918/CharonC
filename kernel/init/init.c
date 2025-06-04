@@ -1,11 +1,13 @@
 #include "Lib/boot/BootInfo.h"
 #include "sys/dev/fb/fb.h"
-#include "sys/dev/vt/vt.h"
+#include "sys/include/subr_printk.h"
 #include <stdint.h>
 #include <stddef.h>
+#include <vt.h>
+#include <serial.h>
+#include <machdep.h>
 
-
-// (1) 아키텍처별 더미 IDT 등록 함수
+/*
 static void lidt_dummy(void) {
 #ifdef __x86_64__
     static uint8_t dummy_idt[16] = {0};
@@ -21,6 +23,7 @@ static void lidt_dummy(void) {
     // ARM64에는 IDT 개념이 없음 → 아무 작업 안 함
 #endif
 }
+*/
 
 // 화면에 픽셀 쓰기 (BGRA)
 void draw_color_bars(BootInfo* bootinfo) {
@@ -63,8 +66,10 @@ vt_t terminal;
 
 // 커널 진입점
 void kmain(BootInfo* info) {
-    // (2) 커널 진입하자마자 더미 IDT 등록 (최우선!)
-    lidt_dummy();
+
+    init_amd64();
+    serial_init();
+    serial_write("Serial initialized!\n");
 
     // 프레임버퍼가 없으면 halt
     if (!info || !info->bi_framebuffer_addr ||
@@ -78,9 +83,14 @@ void kmain(BootInfo* info) {
     fb_draw_hline(info, 0, 400, 300, 0xFFFFFF);
     fb_draw_vline(info, 0, 400, 300, 0xFFFFFF);
 
+    set_vt(&terminal);
     vt_init(&terminal, info, 13, 0xFFFFFF, 0x000000);
-    vt_putc(&terminal, 'G');
-    vt_puts(&terminal, "\nGungYe is the King of the world!!");
+    printk("GungYe!!!!\n");
+
+    printk("\n\nG\nY\nN\nG\nY\nE\n");
+
+    printk("\n%d", 12);
+    
 
     arch_halt_forever();
 }

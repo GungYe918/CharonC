@@ -1,7 +1,8 @@
-#include "vt.h"
 #include "../fb/fb.h"
+#include <vt.h>
 #include <string.h>
 
+static vt_t *g_vt = NULL;
 
 int vt_init(vt_t* vt, BootInfo* binfo, int font_scale, uint32_t fg, uint32_t bg) {
     if (!binfo || !vt) return -1;
@@ -18,6 +19,18 @@ int vt_init(vt_t* vt, BootInfo* binfo, int font_scale, uint32_t fg, uint32_t bg)
 
     fb_scen_clear(binfo, bg);
     return 0;
+}
+
+
+int set_vt(vt_t *vt) {
+    if (!vt) return -1;
+    g_vt = vt;
+
+    return 0;
+}
+
+vt_t* get_vt(void) {
+    return g_vt;
 }
 
 int vt_scroll(vt_t* vt) {
@@ -50,18 +63,49 @@ int vt_scroll(vt_t* vt) {
     return 0;
 }
 
-int vt_putc(vt_t* vt, char c) {
-    if (!vt) return -1;
+int vt_putc(vt_t* vt, const char c) {
+    if (!vt || !vt->binfo) return -1;
 
     int char_width = vt->scale;
     int char_height = vt->scale;
+    const int tab_width = 4;
 
-    vt_draw_char(vt, vt->cursor_x, vt->cursor_y, c);
-    vt->cursor_x += char_width;
+    switch (c) {
+        case '\n' :
+            vt->cursor_x = 0;
+            vt->cursor_y += char_height + 4;
+            break;
+        
+            case '\t' :
+            int spaces = tab_width - (vt->cursor_x / vt->scale) % tab_width;
+            for (int i = 0; i < spaces; ++i)
+                vt_putc(vt, ' ');
+            break;
 
-    if (vt->cursor_x + char_width >= (int)vt->binfo->bi_framebuffer_width) {
-        vt->cursor_x = 0;
-        vt->cursor_y += char_height;
+        case '\r' :
+            vt->cursor_x = 0;
+            break;
+        
+            case '\b':
+            if (vt->cursor_x >= char_width) {
+                vt->cursor_x -= char_width;
+            } else if (vt->cursor_y >= char_height) {
+                vt->cursor_y -= char_height;
+                vt->cursor_x = ((int)vt->binfo->bi_framebuffer_width) - char_width;
+            }
+            vt_draw_char(vt, vt->cursor_x, vt->cursor_y, ' ');
+            break;
+        
+        default :
+            vt_draw_char(vt, vt->cursor_x, vt->cursor_y, c);
+            vt->cursor_x += char_width;
+
+            if (vt->cursor_x + char_width >= (int)vt->binfo->bi_framebuffer_width) {
+                vt->cursor_x = 0;
+                vt->cursor_y += char_height;
+            }
+            
+            break;
     }
 
     if (vt->cursor_y + char_height >= (int)vt->binfo->bi_framebuffer_height) {
@@ -71,7 +115,7 @@ int vt_putc(vt_t* vt, char c) {
     return 0;
 }
 
-int vt_puts(vt_t* vt, char* str) {
+int vt_puts(vt_t* vt, const char* str) {
     if (!vt || !vt->binfo) return -1;
 
     const int tab_width = 4;

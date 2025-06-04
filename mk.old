@@ -27,12 +27,12 @@ else
 $(error Unsupported ARCH: $(ARCH))
 endif
 
-CFLAGS	+=	-Ikernel/sys/include	-Ikernel/Lib
+CFLAGS	+=	-Ikernel/sys/include
 LDFLAGS = -nostdlib -T $(LINKER) -fno-pie -no-pie	-z max-page-size=0x1000	-g
 
-# BUild Files
-Lib = 	mem/mem.o	../sys/dev/fb/fb.o	../sys/dev/vt/vt_font.o	../sys/dev/vt/vt.o	\
-		../sys/kern/subr_printk.o	../sys/debug/serial.o
+# Build Files
+BUILD_FILES = Lib/paint.o sys/dev/fb/fb.o	sys/dev/vt/vt_font.o	sys/dev/vt/vt.o	\
+		sys/kern/subr_printk.o
 
 # INTERT 파일들을 오브젝트 파일로 변환
 INTERT_OBJS = $(patsubst %.c,$(BUILDDIR)/%.o,$(filter %.c,$(INTERT))) \
@@ -40,8 +40,8 @@ INTERT_OBJS = $(patsubst %.c,$(BUILDDIR)/%.o,$(filter %.c,$(INTERT))) \
 
 # 자동으로 전체 OBJS를 구성
 OBJS = $(BUILDDIR)/locore.o $(BUILDDIR)/init.o \
-       $(addprefix $(BUILDDIR)/, $(Lib))	\
-	   $(INTERT_OBJS)
+       $(addprefix $(BUILDDIR)/, $(BUILD_FILES)) \
+       $(INTERT_OBJS)
 
 all: $(OUTFILE)
 
@@ -81,5 +81,6 @@ $(BUILDDIR)/locore.o: $(LOCORE)
 
 clean:
 	rm -rf $(BUILDDIR) $(OUTFILE)
+
 
 .PHONY: all clean

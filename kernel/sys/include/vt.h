@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
-#include "../../../Lib/boot/BootInfo.h"
-#include "../fb/fb.h"
+#include "../../Lib/boot/BootInfo.h"
+#include "../dev/fb/fb.h"
 extern const uint8_t font8x8_basic[128][8];
 
 // vt 콘솔 정의 구조체
@@ -18,6 +18,13 @@ typedef struct vt {
 // vt 초기화
 int vt_init(vt_t* vt, BootInfo* binfo, int font_scale, uint32_t fg, uint32_t bg);
 
+// vt 세팅하기
+int set_vt(vt_t *vt);
+
+// g_vt 가져오기
+vt_t* get_vt(void);
+
+
 /**
  * Vt Utils
  */
@@ -28,5 +35,5 @@ int vt_draw_char(vt_t *vt, int x, int y, char c);
 int vt_draw_str(vt_t *vt, int x, int y, const char *str);
 
 // vt - 문자열 출력
-int vt_putc(vt_t* vt, char c);
-int vt_puts(vt_t* vt, char* str);
+int vt_putc(vt_t* vt, const char c);
+int vt_puts(vt_t* vt, const char* str);
