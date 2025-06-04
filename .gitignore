@@ -1,2 +1,7 @@
 # sysroot 폴더 추적 금지
 sysroot/
+
+# .vscode 폴더 숨기기
+.vscode/
+
+
