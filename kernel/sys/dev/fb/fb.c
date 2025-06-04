@@ -1,4 +1,5 @@
 #include "fb.h"
+#include <sys/errno.h>
 
 int sibalba() {
     /*  UNSUPPORTED FORMAT  */
@@ -6,7 +7,7 @@ int sibalba() {
 }
 
 int fb_draw_pixel(BootInfo *binfo, int x, int y, uint32_t color24) {
-    if (!binfo) return -1;
+    if (!binfo) return EINVAL;
 
     uint32_t* fb = (uint32_t*)(uintptr_t)binfo->bi_framebuffer_addr;
     uint32_t pitch = (binfo->bi_framebuffer_pitch / 4);
@@ -99,7 +100,7 @@ int fb_draw_rect(BootInfo* binfo, int x,  int y,  int w, int h, uint32_t color24
 }
 
 int fb_scen_clear(BootInfo *binfo, uint32_t color24) {
-    if (!binfo) return -1;
+    if (!binfo) return EINVAL;
 
     for (int j = 0; j < (int)(binfo->bi_framebuffer_height); ++j) {
         for (int i = 0; i < (int)(binfo->bi_framebuffer_width); ++i) {
@@ -107,5 +108,15 @@ int fb_scen_clear(BootInfo *binfo, uint32_t color24) {
         }
     }
 
+    return 0;
+}
+
+int fb_draw_rect_outline(BootInfo* binfo, int x, int y, int w, int h, uint32_t color24) {
+    if (!binfo) return EINVAL;
+
+    fb_draw_hline(binfo, x, x + w, y, color24);
+    fb_draw_hline(binfo, x, x + w, y + h - 1, color24);
+    fb_draw_vline(binfo, y, y + h, x, color24);
+    fb_draw_vline(binfo, y, y + h, x + w - 1, color24);
     return 0;
 }

@@ -31,7 +31,7 @@ endif
 LDFLAGS = -nostdlib -T $(LINKER) -fno-pie -no-pie	-z max-page-size=0x1000	-g
 
 # BUild Files
-Lib = paint.o ../dev/fb/fb.o	../dev/vt/vt_font.o
+Lib = paint.o ../sys/dev/fb/fb.o	../sys/dev/vt/vt_font.o	../sys/dev/vt/vt.o
 
 # 자동으로 전체 OBJS를 구성
 OBJS = $(BUILDDIR)/locore.o $(BUILDDIR)/init.o \

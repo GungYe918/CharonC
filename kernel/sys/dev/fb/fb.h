@@ -1,5 +1,5 @@
 #pragma once
-#include "../../Lib/boot/BootInfo.h"
+#include "../../../Lib/boot/BootInfo.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -15,3 +15,4 @@ int fb_draw_hline(BootInfo *binfo, int x1, int x2, int y,        uint32_t color2
 int fb_draw_vline(BootInfo *binfo, int y1, int y2, int x,        uint32_t color24);
 int fb_draw_rect (BootInfo* binfo, int x,  int y,  int w, int h, uint32_t color24);
 int fb_scen_clear(BootInfo *binfo, uint32_t color24);
+int fb_draw_rect_outline(BootInfo* binfo, int x, int y, int w, int h, uint32_t color24);

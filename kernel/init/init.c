@@ -1,6 +1,6 @@
 #include "Lib/boot/BootInfo.h"
-#include "dev/fb/fb.h"
-#include "dev/vt/vt.h"
+#include "sys/dev/fb/fb.h"
+#include "sys/dev/vt/vt.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -59,6 +59,8 @@ static void arch_halt_forever(void) {
 #endif
 }
 
+vt_t terminal;
+
 // 커널 진입점
 void kmain(BootInfo* info) {
     // (2) 커널 진입하자마자 더미 IDT 등록 (최우선!)
@@ -75,7 +77,10 @@ void kmain(BootInfo* info) {
 
     fb_draw_hline(info, 0, 400, 300, 0xFFFFFF);
     fb_draw_vline(info, 0, 400, 300, 0xFFFFFF);
-    vt_draw_str(info, 20, 40, "Hello, CharonOS!", 0xFFFFFF, 0x000000, 13);
+
+    vt_init(&terminal, info, 13, 0xFFFFFF, 0x000000);
+    vt_putc(&terminal, 'G');
+    vt_puts(&terminal, "\nGungYe is the King of the world!!");
 
     arch_halt_forever();
 }

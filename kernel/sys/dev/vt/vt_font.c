@@ -131,22 +131,21 @@ const uint8_t font8x8_basic[128][8] = {
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}    // U+007F
 };
 
-int vt_draw_char(BootInfo *binfo, int x, int y, char c, uint32_t fg, uint32_t bg, int scale) {
-    if (!binfo || scale <= 0) return 0;
+int vt_draw_char(vt_t *vt, int x, int y, char c) {
+    if (!vt || !vt->binfo || vt->scale <= 0) return 0;
 
     if ((unsigned char)c > 127) c = '?';
 
     const uint8_t* glyph = font8x8_basic[(unsigned char)c];
+    int scale = vt->scale;
 
-    // scale: 출력될 픽셀 크기(가로/세로)
     for (int sy = 0; sy < scale; ++sy) {
-        // 원본 폰트의 y좌표
         int row = (sy * 8) / scale;
         uint8_t bits = glyph[row];
         for (int sx = 0; sx < scale; ++sx) {
             int col = (sx * 8) / scale;
-            uint32_t color = (bits & (1 << col)) ? fg : bg;
-            fb_draw_pixel(binfo, x + sx, y + sy, color);
+            uint32_t color = (bits & (1 << col)) ? vt->fg_color : vt->bg_color;
+            fb_draw_pixel(vt->binfo, x + sx, y + sy, color);
         }
     }
     return 0;
@@ -154,24 +153,24 @@ int vt_draw_char(BootInfo *binfo, int x, int y, char c, uint32_t fg, uint32_t bg
 
 
 
-int vt_draw_str(BootInfo *binfo, int x, int y, const char *str, uint32_t fg, uint32_t bg, int scale) {
-    if (!binfo || !str || scale <= 0) return -1;
+int vt_draw_str(vt_t *vt, int x, int y, const char *str) {
+    if (!vt || !vt->binfo || !str || vt->scale <= 0) return -1;
 
-    int spacing = (scale + 7) / 8;  // scale에 기반한 자간 설정
-    if (spacing < 1) spacing = 1;   // 최소 1픽셀
-    
+    int spacing = (vt->scale + 7) / 8;
+    if (spacing < 1) spacing = 1;
+
     int cx = x;
     while (*str) {
-        vt_draw_char(binfo, cx, y, *str, fg, bg, scale);
+        vt_draw_char(vt, cx, y, *str);
 
-        // 문자와 문자 사이 자간에 BG색상으로 직사각형 채우기
-        for (int sy = 0; sy < scale; ++sy) {
+        // 자간 영역을 배경색으로 채움
+        for (int sy = 0; sy < vt->scale; ++sy) {
             for (int sx = 0; sx < spacing; ++sx) {
-                fb_draw_pixel(binfo, cx + scale + sx, y + sy, bg);
+                fb_draw_pixel(vt->binfo, cx + vt->scale + sx, y + sy, vt->bg_color);
             }
         }
 
-        cx += scale + spacing; // 스케일된 폰트 + 자간만큼 이동
+        cx += vt->scale + spacing;
         str++;
     }
     return 0;
