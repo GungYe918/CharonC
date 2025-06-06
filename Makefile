@@ -27,12 +27,12 @@ else
 $(error Unsupported ARCH: $(ARCH))
 endif
 
-CFLAGS	+=	-Ikernel/sys/include	-Ikernel/Lib
+CFLAGS	+=	-Ikernel/sys/include	-Ikernel/Lib	-Ikernel/sys/io
 LDFLAGS = -nostdlib -T $(LINKER) -fno-pie -no-pie	-z max-page-size=0x1000	-g
 
 # BUild Files
-Lib = 	mem/mem.o	../sys/dev/fb/fb.o	../sys/dev/vt/vt_font.o	../sys/dev/vt/vt.o	\
-		../sys/kern/subr_printk.o	../sys/debug/serial.o
+Lib = 	mem/mem.o	../sys/dev/fb/fb.o	../sys/dev/pci/pci.o	../sys/dev/vt/vt_font.o	../sys/dev/vt/vt.o	\
+		../sys/kern/subr_printk.o	../sys/debug/serial.o	../sys/dev/kbd/kbd.o	../sys/dev/pic/pic.o
 
 # INTERT 파일들을 오브젝트 파일로 변환
 INTERT_OBJS = $(patsubst %.c,$(BUILDDIR)/%.o,$(filter %.c,$(INTERT))) \

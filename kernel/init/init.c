@@ -6,6 +6,9 @@
 #include <vt.h>
 #include <serial.h>
 #include <machdep.h>
+#include <pci.h>
+#include <pic.h>
+#include <io/kbd/kbd.h>
 
 /*
 static void lidt_dummy(void) {
@@ -70,6 +73,7 @@ void kmain(BootInfo* info) {
     init_amd64();
     serial_init();
     serial_write("Serial initialized!\n");
+    
 
     // 프레임버퍼가 없으면 halt
     if (!info || !info->bi_framebuffer_addr ||
@@ -77,14 +81,17 @@ void kmain(BootInfo* info) {
         arch_halt_forever();
     }
 
-
-    draw_color_bars(info);
-
-    fb_draw_hline(info, 0, 400, 300, 0xFFFFFF);
-    fb_draw_vline(info, 0, 400, 300, 0xFFFFFF);
-
     set_vt(&terminal);
     vt_init(&terminal, info, 13, 0xFFFFFF, 0x000000);
+    
+    pci_init();
+    pic_remap();
+    asm volatile("sti");
+
+    
+    kbd_init();
+
+
     printk("GungYe!!!!\n");
 
     printk("\n\nG\nY\nN\nG\nY\nE\n");

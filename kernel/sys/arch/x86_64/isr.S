@@ -128,3 +128,9 @@ isr_stubs:
     .quad isr29
     .quad isr30
     .quad isr31
+
+# irq1 정의
+.global irq1_handler
+irq1_handler:
+    pushq $0x21           # int_no = 0x21
+    jmp isr_common_stub

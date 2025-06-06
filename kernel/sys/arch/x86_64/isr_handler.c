@@ -1,4 +1,5 @@
 #include <isr.h>
+#include <io/kbd/kbd.h>
 
 // 예외 메시지 리스트
 static const char* exception_messages[] = {
@@ -46,16 +47,19 @@ struct isr_frame {
 } __attribute__((packed));
 
 void isr_handler_c(isr_frame_t* frame) {
-    printk("\n[EXCEPTION] #%d - %s\n", (int)frame->int_no,
-           (frame->int_no < 32 ? exception_messages[frame->int_no] : "Unknown"));
-    printk("  RIP = %lx  ERR = %lx\n", frame->rip, frame->err_code);
+    if (frame->int_no < 32) {
+        printk("\n[EXCEPTION] #%d - %s\n", (int)frame->int_no,
+            (frame->int_no < 32 ? exception_messages[frame->int_no] : "Unknown"));
+        printk("  RIP = %lx  ERR = %lx\n", frame->rip, frame->err_code);
 
-    if (frame->int_no == 0) {  // Divide by Zero
-        printk("Handled divide-by-zero! Skipping instruction.\n");
-        frame->rip += 2;  // div r/m64는 보통 2~3바이트지만, 임시로 2byte 이동 (정확히는 분석 필요)
-        return;
+        if (frame->int_no == 0) {
+            printk("Handled divide-by-zero! Skipping instruction.\n");
+            frame->rip += 2;
+            return;
+        }
+
+        while (1) __asm__ volatile ("cli; hlt");
+    } else if (frame->int_no == 0x21) {
+        kbd_handler();
     }
-
-    // 기타 예외 → halt
-    while (1) __asm__ volatile ("cli; hlt");
 }

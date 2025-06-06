@@ -25,6 +25,8 @@ static struct idt_ptr idtp;
 
 // isr_stub0 ~ isr_stub31 주소가 들어 있는 테이블 (isr.S에서 제공)
 extern void* isr_stubs[];
+// irq1 handler import (isr.S에 있음)
+extern void irq1_handler();
 
 // IDT 엔트리 설정 함수
 void idt_set_gate(int num, void* handler, uint16_t selector, uint8_t flags) {
@@ -48,12 +50,7 @@ void idt_init() {
         idt_set_gate(i, isr_stubs[i], 0x08, 0x8E);  // CS = 0x08, type = interrupt
     }
 
-    // 나머지 IDT는 기본 무시용 핸들러 설정 가능 (선택)
-    // 예시:
-    // extern void default_interrupt_handler();
-    // for (int i = 32; i < IDT_ENTRY_COUNT; i++) {
-    //     idt_set_gate(i, default_interrupt_handler, 0x08, 0x8E);
-    // }
+    idt_set_gate(0x21, irq1_handler, 0x08, 0x8E);
 
     idtp.limit = sizeof(idt) - 1;
     idtp.base  = (uint64_t)&idt;
