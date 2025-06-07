@@ -31,9 +31,6 @@ vt_t* get_vt(void);
 // vt - char 출력
 int vt_draw_char(vt_t *vt, int x, int y, char c);
 
-// vt - string 출력
-int vt_draw_str(vt_t *vt, int x, int y, const char *str);
-
 // vt - 문자열 출력
 int vt_putc(vt_t* vt, const char c);
 int vt_puts(vt_t* vt, const char* str);

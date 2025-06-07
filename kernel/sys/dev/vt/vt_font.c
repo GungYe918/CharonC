@@ -150,28 +150,3 @@ int vt_draw_char(vt_t *vt, int x, int y, char c) {
     }
     return 0;
 }
-
-
-
-int vt_draw_str(vt_t *vt, int x, int y, const char *str) {
-    if (!vt || !vt->binfo || !str || vt->scale <= 0) return -1;
-
-    int spacing = (vt->scale + 7) / 8;
-    if (spacing < 1) spacing = 1;
-
-    int cx = x;
-    while (*str) {
-        vt_draw_char(vt, cx, y, *str);
-
-        // 자간 영역을 배경색으로 채움
-        for (int sy = 0; sy < vt->scale; ++sy) {
-            for (int sx = 0; sx < spacing; ++sx) {
-                fb_draw_pixel(vt->binfo, cx + vt->scale + sx, y + sy, vt->bg_color);
-            }
-        }
-
-        cx += vt->scale + spacing;
-        str++;
-    }
-    return 0;
-}
